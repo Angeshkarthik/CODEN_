@@ -1,0 +1,94 @@
+{
+  "name": "offline-code-compiler",
+  "productName": "CODEN",
+  "version": "1.0.0",
+  "description": "Offline Code Compiler",
+  "main": "dist-electron/main.js",
+  "author": "CODEN Team",
+  "scripts": {
+    "dev": "concurrently -k \"vite\" \"tsc -p tsconfig.electron.json && node dist-electron/devServer.js\"",
+    "dev:server": "tsc -p tsconfig.electron.json && node dist-electron/devServer.js",
+    "compile:electron": "tsc -p tsconfig.electron.json",
+    "build": "tsc && vite build && tsc -p tsconfig.electron.json",
+    "electron:dev": "concurrently -k \"vite\" \"wait-on http://127.0.0.1:5173 && tsc -p tsconfig.electron.json && electron . --dev\"",
+    "start": "tsc -p tsconfig.electron.json && electron .",
+    "package:dir": "npm run build && electron-builder --win --x64 --dir",
+    "package:win": "npm run build && electron-builder --win --x64"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
+    "lucide-react": "^1.16.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tree-kill": "^1.2.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^34.2.0",
+    "electron-builder": "^26.15.3",
+    "typescript": "~5.7.3",
+    "vite": "^6.1.0",
+    "wait-on": "^8.0.2"
+  },
+  "build": {
+    "appId": "com.coden.ide",
+    "productName": "CODEN",
+    "directories": {
+      "output": "dist-packages",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "package.json",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!src/**/*",
+      "!scratch/**/*",
+      "!toolchains/**/*",
+      "!THIRD-PARTY-NOTICES/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "toolchains",
+        "to": "toolchains",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "THIRD-PARTY-NOTICES",
+        "to": "THIRD-PARTY-NOTICES",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "build/icon.ico",
+      "executableName": "CODEN"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "CODEN",
+      "uninstallDisplayName": "CODEN - Offline Code Compiler"
+    },
+    "portable": {
+      "artifactName": "CODEN-Portable-${version}.exe"
+    }
+  }
+}
