@@ -31,6 +31,7 @@ function createWindow() {
     minWidth: 800,
     minHeight: 500,
     title: 'CODEN — Your Code. Your Machine.',
+    icon: path.join(__dirname, '../build/icon.ico'),
     show: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),

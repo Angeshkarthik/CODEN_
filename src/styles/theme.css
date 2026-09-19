@@ -159,12 +159,17 @@ body, html, #root {
   width: 26px;
   height: 26px;
   border-radius: 5px;
-  border: 1px solid rgba(167, 173, 181, 0.4);
-  background-color: rgba(167, 173, 181, 0.08);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-panel);
   font-family: var(--font-mono);
   font-size: 13px;
   font-weight: 700;
   line-height: 1;
+  transition: border-color 0.15s ease;
+}
+
+.coden-brand-group:hover .coden-brand-box {
+  border-color: var(--border-active);
 }
 
 .coden-symbol-arrow {
@@ -302,16 +307,21 @@ body, html, #root {
 }
 
 .tab-bar-item:hover {
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: var(--bg-panel-secondary);
   color: var(--text-main);
-  border-color: var(--border-subtle);
+  border-color: var(--border-color);
 }
 
 .tab-bar-item.active {
-  background-color: #211E1A;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  color: #FFFFFF;
+  background-color: var(--bg-tab-active);
+  border: 1px solid var(--border-active);
+  color: var(--text-bright);
   font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+.tab-bar-item:active {
+  transform: scale(0.99);
 }
 
 .tab-icon {
@@ -366,7 +376,7 @@ body, html, #root {
 }
 
 .tab-status-dot.dirty {
-  background-color: var(--color-primary);
+  background-color: #E5A93C;
 }
 
 .tab-dirty-indicator {
@@ -401,8 +411,8 @@ body, html, #root {
 }
 
 .tab-close-btn:hover {
-  background-color: rgba(255, 255, 255, 0.12);
-  color: #FFFFFF;
+  background-color: var(--border-subtle);
+  color: var(--text-bright);
   opacity: 1;
 }
 
@@ -611,6 +621,10 @@ body, html, #root {
   color: var(--color-primary);
 }
 
+.icon-action-btn:active {
+  transform: scale(0.96);
+}
+
 .input-badge-dot {
   position: absolute;
   top: 4px;
@@ -646,6 +660,7 @@ body, html, #root {
 .btn-run-action:active {
   background-color: var(--color-primary-active);
   box-shadow: none;
+  transform: scale(0.98);
 }
 
 .btn-run-action:focus-visible {
@@ -677,6 +692,7 @@ body, html, #root {
 .btn-stop-action:active {
   background-color: #B5533C;
   box-shadow: none;
+  transform: scale(0.98);
 }
 
 .btn-stop-action:focus-visible {
@@ -826,7 +842,7 @@ body, html, #root {
   height: 44px;
   border-radius: 6px;
   border: 1px solid var(--border-color);
-  background-color: rgba(255, 255, 255, 0.02);
+  background-color: var(--bg-panel);
   margin-bottom: 12px;
   font-family: var(--font-mono);
   font-size: 15px;
@@ -855,28 +871,41 @@ body, html, #root {
   font-weight: 600;
   font-size: 12px;
   margin-top: 14px;
-  padding: 4px 0;
+  padding: 4px 10px;
+  border-radius: 4px;
   user-select: none;
+  width: fit-content;
+  letter-spacing: 0.1px;
 }
 
 .state-success {
   color: var(--color-success);
+  background-color: rgba(76, 175, 109, 0.08);
+  border: 1px solid rgba(76, 175, 109, 0.22);
 }
 
 .state-error {
   color: var(--color-danger);
+  background-color: rgba(214, 93, 69, 0.08);
+  border: 1px solid rgba(214, 93, 69, 0.22);
 }
 
 .state-timeout {
   color: var(--color-warning);
+  background-color: rgba(167, 173, 181, 0.08);
+  border: 1px solid rgba(167, 173, 181, 0.22);
 }
 
 .state-running {
   color: var(--color-running);
+  background-color: rgba(167, 173, 181, 0.08);
+  border: 1px solid rgba(167, 173, 181, 0.22);
 }
 
 .state-validation {
   color: var(--color-primary);
+  background-color: rgba(167, 173, 181, 0.08);
+  border: 1px solid rgba(167, 173, 181, 0.22);
 }
 
 /* Combined Console Panel (Right Side: Input + Output) */
@@ -990,7 +1019,19 @@ body, html, #root {
 }
 
 .console-divider-grip {
-  display: none;
+  display: block;
+  width: 28px;
+  height: 2px;
+  border-radius: 1px;
+  background-color: var(--text-dim);
+  opacity: 0.4;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.console-horizontal-divider:hover .console-divider-grip,
+.console-horizontal-divider.dragging .console-divider-grip {
+  background-color: var(--text-bright);
+  opacity: 0.9;
 }
 
 /* Settings Modal */
@@ -1773,6 +1814,10 @@ body, html, #root {
   color: var(--text-bright);
 }
 
+.toolbar-pill-btn:active {
+  transform: scale(0.98);
+}
+
 .toolbar-pill-btn.active {
   background-color: rgba(167, 173, 181, 0.1);
   border-color: var(--color-primary);
@@ -2015,9 +2060,13 @@ body, html, #root {
 }
 
 .toolbar-icon-group .icon-action-btn:hover {
-  background-color: rgba(255, 255, 255, 0.07);
+  background-color: var(--border-subtle);
   border: none;
   color: var(--text-bright);
+}
+
+.toolbar-icon-group .icon-action-btn:active {
+  transform: scale(0.95);
 }
 
 /* ── Run button keyboard hint keycap badge ── */

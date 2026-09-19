@@ -10,6 +10,7 @@ interface ConsolePanelProps {
   isRunning: boolean;
   onClearOutput: () => void;
   onNavigateToLine?: (line: number, column?: number, fileName?: string) => void;
+  onRun?: () => void;
 }
 
 export const ConsolePanel: React.FC<ConsolePanelProps> = ({
@@ -18,7 +19,8 @@ export const ConsolePanel: React.FC<ConsolePanelProps> = ({
   outputResult,
   isRunning,
   onClearOutput,
-  onNavigateToLine
+  onNavigateToLine,
+  onRun
 }) => {
   // Vertical split percentage between Input and Output
   // Default: Input ~35%, Output ~65%
@@ -64,6 +66,14 @@ export const ConsolePanel: React.FC<ConsolePanelProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Ctrl+Enter -> Run Active Tab
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'Enter' || e.code === 'Enter' || e.code === 'NumpadEnter') && !e.shiftKey && !e.altKey) {
+      e.preventDefault();
+      e.stopPropagation();
+      onRun?.();
+      return;
+    }
+
     // Support Tab key insertion in input textarea
     if (e.key === 'Tab') {
       e.preventDefault();

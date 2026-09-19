@@ -300,6 +300,7 @@ export const App: React.FC = () => {
   activeDocIdRef.current = activeDocId;
   const handleCloseTabRef = useRef<((docId: string) => Promise<void>) | null>(null);
   const handleOpenWorkspaceRef = useRef<(() => Promise<void>) | null>(null);
+  const handleRunRef = useRef<(() => Promise<void>) | null>(null);
 
   // Open Folder chord state (BUG-06)
   const pendingChordRef = useRef<string | null>(null);
@@ -1377,6 +1378,8 @@ export const App: React.FC = () => {
     }
   };
 
+  handleRunRef.current = handleRun;
+
   const handleStop = async (targetDocId?: string | unknown) => {
     // If targetDocId is explicitly specified as a string (e.g. from handleCloseTab),
     // only stop if this document actually owns the run
@@ -1504,6 +1507,16 @@ export const App: React.FC = () => {
   // Global Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+Enter -> Run Active Tab
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'Enter' || e.code === 'Enter' || e.code === 'NumpadEnter') && !e.shiftKey && !e.altKey) {
+        if (isSettingsOpen || newFileDialog.isOpen || newFolderDialog.isOpen || renameDialog.isOpen || deleteDialog.isOpen || isNewDocModalOpen) {
+          return;
+        }
+        e.preventDefault();
+        handleRunRef.current?.();
+        return;
+      }
+
       // Ctrl+S -> Save Active Tab
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's' && !e.shiftKey && !e.altKey) {
         e.preventDefault();
@@ -1743,6 +1756,7 @@ export const App: React.FC = () => {
                 )
               }
               onNavigateToLine={handleNavigateToError}
+              onRun={handleRun}
             />
           }
         />

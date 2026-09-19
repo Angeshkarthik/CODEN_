@@ -100,9 +100,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     <div className="top-toolbar">
       <div className="toolbar-left">
         <div className="coden-brand-group">
-          <div className="coden-brand-box" title="CODEN">
-            <span className="coden-symbol-arrow">&gt;</span>
-            <span className="coden-symbol-cursor">_</span>
+          <div className="coden-brand-box" title="CODEN — Your Code. Your Machine.">
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M12 5H5C4.44772 5 4 5.44772 4 6V14C4 14.5523 4.44772 15 5 15H10" stroke="var(--color-primary)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M12.5 15H16.5" stroke="var(--color-primary)" strokeWidth="2.2" strokeLinecap="round" />
+            </svg>
           </div>
           <div className="coden-brand-text-col">
             <span className="coden-brand" title="CODEN">
