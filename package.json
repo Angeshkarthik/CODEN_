@@ -74,10 +74,11 @@
     "win": {
       "target": [
         "nsis",
-        "portable"
+        "zip"
       ],
       "icon": "build/icon.ico",
-      "executableName": "CODEN"
+      "executableName": "CODEN",
+      "artifactName": "CODEN-Portable-${version}.${ext}"
     },
     "nsis": {
       "oneClick": false,
@@ -85,10 +86,8 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "CODEN",
-      "uninstallDisplayName": "CODEN - Offline Code Compiler"
-    },
-    "portable": {
-      "artifactName": "CODEN-Portable-${version}.exe"
+      "uninstallDisplayName": "CODEN - Offline Code Compiler",
+      "artifactName": "CODEN Setup ${version}.${ext}"
     }
   }
 }
