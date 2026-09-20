@@ -136,12 +136,26 @@ Array elements are: 10 20 30 40 50
 
 ---
 
-## 📸 Screenshots
+## 📷 Screenshots
 
 ### CODEN Editor
+
 The primary workspace featuring the Monaco editor, prompt-aware input, and execution output.
+
 ![CODEN Editor](screenshots/editor.png)
 
+### Prompt-Aware Input
+
+CODEN detects supported program input prompts and presents structured input fields instead of forcing the user to work with raw stdin.
+
+For example, a program can expose separate fields for:
+
+- Array size
+- Array elements
+
+The entered values are serialized into normal stdin before local execution, while detected prompts are kept out of the final output presentation.
+
+![CODEN Prompt-Aware Input](docs/screenshots/prompt-aware.png)
 ### Java Execution
 Run Java programs locally with stdin support and real-time execution results.
 ![Java Execution](screenshots/java.png)
