@@ -155,7 +155,7 @@ For example, a program can expose separate fields for:
 
 The entered values are serialized into normal stdin before local execution, while detected prompts are kept out of the final output presentation.
 
-![CODEN Prompt-Aware Input](docs/screenshots/prompt-aware.png)
+![CODEN Prompt-Aware Input](screenshots/prompt-aware.png)
 ### Java Execution
 Run Java programs locally with stdin support and real-time execution results.
 ![Java Execution](screenshots/java.png)
