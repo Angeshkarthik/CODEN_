@@ -139,8 +139,8 @@ body, html, #root {
   align-items: center;
   justify-content: space-between;
   padding: 0 14px;
-  z-index: 20;
-  overflow: hidden;
+  z-index: 30;
+  overflow: visible;
   position: relative;
   width: 100%;
   max-width: 100%;
@@ -224,7 +224,7 @@ body, html, #root {
   height: 100%;
   flex: 1 1 0%;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .lang-select-box {
@@ -1506,6 +1506,7 @@ body, html, #root {
   min-width: 0;
   overflow: hidden;
   position: relative;
+  z-index: 1;
   width: 100%;
   height: calc(100vh - 52px);
   box-sizing: border-box;
@@ -1903,6 +1904,7 @@ body, html, #root {
   align-items: center;
   gap: 7px;
   padding: 5px 11px;
+  min-width: 86px;
   background-color: var(--bg-panel);
   border: 1px solid rgba(167, 173, 181, 0.35);
   border-radius: 6px;
@@ -1916,6 +1918,7 @@ body, html, #root {
   user-select: none;
   height: 32px;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .lang-selector-btn:hover {
@@ -1941,12 +1944,14 @@ body, html, #root {
   font-weight: 600;
   color: var(--text-bright);
   letter-spacing: 0.2px;
+  flex-shrink: 0;
 }
 
 .lang-chevron {
   color: var(--text-dim);
   transition: transform 0.15s ease, color 0.15s ease;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 .lang-selector-btn:hover .lang-chevron {
@@ -2168,10 +2173,6 @@ body, html, #root {
     max-width: 160px;
     padding: 4px 6px;
   }
-  .lang-selector-btn {
-    padding: 5px 8px;
-    gap: 5px;
-  }
   .toolbar-icon-group {
     padding: 2px;
     gap: 1px;
@@ -2226,6 +2227,11 @@ body, html, #root {
     width: 24px;
     height: 24px;
   }
+  .lang-selector-btn {
+    min-width: 80px;
+    padding: 5px 8px;
+    gap: 6px;
+  }
   .lang-selector-name {
     font-size: 11px;
   }
@@ -2247,6 +2253,11 @@ body, html, #root {
   }
   .coden-brand-group {
     margin-right: 4px;
+  }
+  .lang-selector-btn {
+    min-width: 76px;
+    padding: 5px 7px;
+    gap: 5px;
   }
 }
 
