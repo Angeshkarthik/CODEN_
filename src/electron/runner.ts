@@ -51,12 +51,82 @@ export async function stopCurrentExecution(executionId?: string): Promise<boolea
   return true;
 }
 
+const JAVA_IDENTIFIER_REGEX = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
+const JAVA_RESERVED_WORDS = new Set([
+  'abstract', 'assert', 'boolean', 'break', 'byte', 'case', 'catch', 'char',
+  'class', 'const', 'continue', 'default', 'do', 'double', 'else', 'enum',
+  'extends', 'final', 'finally', 'float', 'for', 'goto', 'if', 'implements',
+  'import', 'instanceof', 'int', 'interface', 'long', 'native', 'new',
+  'package', 'private', 'protected', 'public', 'return', 'short', 'static',
+  'strictfp', 'super', 'switch', 'synchronized', 'this', 'throw', 'throws',
+  'transient', 'try', 'void', 'volatile', 'while', 'true', 'false', 'null'
+]);
+
+export interface JavaTargetResolution {
+  fileName: string;
+  className: string;
+  error?: string;
+}
+
+/**
+ * Safely resolves and validates Java source filename and launch class name from active document.
+ * Enforces basename-only (no traversal), strips .java extension, and validates Java identifier syntax.
+ */
+export function resolveJavaExecutionTarget(documentFileName?: string): JavaTargetResolution {
+  if (!documentFileName || typeof documentFileName !== 'string' || !documentFileName.trim()) {
+    return { fileName: 'Main.java', className: 'Main' };
+  }
+
+  const trimmed = documentFileName.trim();
+  if (trimmed.includes('\0')) {
+    return {
+      fileName: 'Main.java',
+      className: 'Main',
+      error: 'Invalid Java filename: null bytes are not permitted.'
+    };
+  }
+
+  // Basename extraction to prevent directory traversal across both Windows and POSIX separators
+  const cleanBase = path.basename(trimmed.replace(/[\/\\]/g, path.sep));
+  if (!cleanBase || cleanBase === '.' || cleanBase === '..') {
+    return {
+      fileName: 'Main.java',
+      className: 'Main',
+      error: `Invalid Java filename: "${documentFileName}".`
+    };
+  }
+
+  const className = cleanBase.replace(/\.java$/i, '');
+
+  if (!JAVA_IDENTIFIER_REGEX.test(className)) {
+    return {
+      fileName: cleanBase.endsWith('.java') ? cleanBase : `${cleanBase}.java`,
+      className,
+      error: `Invalid Java filename or class name: "${cleanBase}". Java file and class names must be valid Java identifiers (e.g. Main.java, Important.java).`
+    };
+  }
+
+  if (JAVA_RESERVED_WORDS.has(className)) {
+    return {
+      fileName: `${className}.java`,
+      className,
+      error: `Invalid Java filename or class name: "${cleanBase}". "${className}" is a reserved Java keyword.`
+    };
+  }
+
+  return {
+    fileName: `${className}.java`,
+    className
+  };
+}
+
 export async function executeCode(
   languageId: string,
   code: string,
   input: string,
   timeoutSeconds: number = 10,
-  executionId?: string
+  executionId?: string,
+  documentFileName?: string
 ): Promise<ExecutionResult> {
   const effectiveId = executionId || `exec_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   
@@ -69,9 +139,28 @@ export async function executeCode(
     throw new Error(`Unsupported language: ${languageId}`);
   }
 
+  // Determine source filename and runtime target (preserves C/C++/Python/JS exactly)
+  let sourceFileName = lang.fileName;
+  let runtimeTarget = lang.fileName;
+
+  if (languageId === 'java') {
+    const javaTarget = resolveJavaExecutionTarget(documentFileName);
+    if (javaTarget.error) {
+      return {
+        stdout: '',
+        stderr: javaTarget.error,
+        exitCode: 1,
+        compilationError: javaTarget.error,
+        durationMs: 0
+      };
+    }
+    sourceFileName = javaTarget.fileName;
+    runtimeTarget = javaTarget.fileName;
+  }
+
   // Create isolated temp workspace
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), `occ_${languageId}_`));
-  const sourceFilePath = path.join(tempDir, lang.fileName);
+  const sourceFilePath = path.join(tempDir, sourceFileName);
   const outputExePath = path.join(tempDir, 'Main.exe');
 
   fs.writeFileSync(sourceFilePath, code, 'utf8');
@@ -85,7 +174,7 @@ export async function executeCode(
 
     // 1. Compilation Step (if required)
     if (lang.requiresCompilation && lang.compilerCommand && lang.compilerArgs) {
-      const compileArgs = lang.compilerArgs(lang.fileName, outputExePath);
+      const compileArgs = lang.compilerArgs(sourceFileName, outputExePath);
       const resolvedCompiler = resolveToolchainExecutable(lang.compilerCommand);
 
       const compileResult = await runProcessInDir(
@@ -125,7 +214,7 @@ export async function executeCode(
 
     // 2. Execution Step
     let runtimeCmd = lang.runtimeCommand;
-    let runtimeArgs = lang.runtimeArgs(lang.fileName);
+    let runtimeArgs = lang.runtimeArgs(runtimeTarget);
     let runtimeEnv: Record<string, string> | undefined = undefined;
 
     if (runtimeCmd === 'Main.exe') {

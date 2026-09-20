@@ -116,25 +116,25 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
         {onToggleSidebar && (
           <button
-            className={"toolbar-pill-btn" + (isSidebarVisible ? " active" : "")}
+            className={"toolbar-pill-btn workspace-toggle-btn" + (isSidebarVisible ? " active" : "")}
             onClick={onToggleSidebar}
             title={isSidebarVisible ? "Hide Workspace Explorer" : "Show Workspace Explorer"}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--color-primary)" stroke="var(--color-primary)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" />
             </svg>
-            <span>workspace</span>
+            <span className="btn-label">workspace</span>
           </button>
         )}
 
         <div className="file-menu-container" ref={fileMenuRef}>
           <button
-            className="toolbar-pill-btn"
+            className="toolbar-pill-btn file-menu-btn"
             onClick={() => setIsFileMenuOpen((prev) => !prev)}
             title="File Menu"
           >
             <FileText size={13} />
-            <span>File</span>
+            <span className="btn-label">File</span>
             <ChevronDown size={11} />
           </button>
 
@@ -220,7 +220,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
         <button
           className={
-            "toolbar-pill-btn" +
+            "toolbar-pill-btn save-doc-btn" +
             (activeDoc?.isDirty ? " save-dirty" : " save-clean") +
             (!isElectron ? " disabled" : "")
           }
@@ -238,7 +238,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           aria-label="Save File"
         >
           <Save size={13} />
-          <span>Save</span>
+          <span className="btn-label">Save</span>
         </button>
 
         <div className="tab-bar-outer-group">

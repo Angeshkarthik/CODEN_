@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { EditorDocument } from '../../electron/types';
 import { FileTypeIcon } from '../FileTree/FileTypeIcon';
@@ -16,6 +16,18 @@ export const TabBar: React.FC<TabBarProps> = ({
   onSelectTab,
   onCloseTab
 }) => {
+  const activeTabRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (activeTabRef.current) {
+      activeTabRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest'
+      });
+    }
+  }, [activeDocumentId]);
+
   return (
     <div className="tab-bar-container">
       {documents.map((doc) => {
@@ -23,14 +35,15 @@ export const TabBar: React.FC<TabBarProps> = ({
         return (
           <div
             key={doc.id}
+            ref={isActive ? activeTabRef : undefined}
             className={`tab-bar-item ${isActive ? 'active' : ''}`}
             onClick={() => onSelectTab(doc.id)}
-            title={doc.filePath || 'Unsaved Document'}
+            title={doc.filePath || doc.fileName || 'Unsaved Document'}
           >
             <span className="tab-icon">
               <FileTypeIcon filename={doc.fileName} size={14} />
             </span>
-            <span className="tab-title">{doc.fileName}</span>
+            <span className="tab-title" title={doc.fileName}>{doc.fileName}</span>
             {doc.isDirty ? (
               <span className="tab-status-dot dirty" title="Unsaved changes" />
             ) : isActive ? (

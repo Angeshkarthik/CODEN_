@@ -11,7 +11,10 @@ export const LANGUAGE_CONFIGS: Record<string, LanguageConfig> = {
     compilerCommand: 'javac',
     compilerArgs: (sourceFile: string) => [sourceFile],
     runtimeCommand: 'java',
-    runtimeArgs: () => ['Main'],
+    runtimeArgs: (targetFile: string) => {
+      const className = targetFile.replace(/\.java$/i, '');
+      return [className || 'Main'];
+    },
     versionCheck: { command: 'javac', args: ['-version'] },
     defaultCode: `import java.util.*;
 

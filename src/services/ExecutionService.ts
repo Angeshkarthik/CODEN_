@@ -15,10 +15,11 @@ export class ExecutionService {
     code: string,
     input: string,
     timeoutSeconds: number,
-    executionId?: string
+    executionId?: string,
+    fileName?: string
   ): Promise<ExecutionResult> {
     if (isElectronMode()) {
-      return await window.electronAPI!.runCode(languageId, code, input, timeoutSeconds, executionId);
+      return await window.electronAPI!.runCode(languageId, code, input, timeoutSeconds, executionId, fileName);
     }
 
     // Browser Localhost execution
@@ -36,7 +37,8 @@ export class ExecutionService {
           code,
           stdin: input,
           timeout: timeoutSeconds,
-          executionId: effectiveExecId
+          executionId: effectiveExecId,
+          fileName
         })
       });
 

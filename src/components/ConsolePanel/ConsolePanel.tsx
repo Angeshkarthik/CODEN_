@@ -45,8 +45,8 @@ export const ConsolePanel: React.FC<ConsolePanelProps> = ({
     const totalHeight = rect.height;
     if (totalHeight <= 0) return;
 
-    // Minimum heights enforced: 60px min for Input and Output
-    const minHeight = 60;
+    // Minimum heights enforced: 45px min for Input and Output
+    const minHeight = 45;
     if (currentY < minHeight || totalHeight - currentY < minHeight) {
       return;
     }

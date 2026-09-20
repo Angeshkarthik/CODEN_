@@ -3,8 +3,8 @@ import { ExecutionResult, CompilerStatus } from './types';
 
 try {
   contextBridge.exposeInMainWorld('electronAPI', {
-    runCode: (languageId: string, code: string, input: string, timeoutSeconds: number, executionId?: string): Promise<ExecutionResult> =>
-      ipcRenderer.invoke('compiler:run', { languageId, code, input, timeoutSeconds, executionId }),
+    runCode: (languageId: string, code: string, input: string, timeoutSeconds: number, executionId?: string, fileName?: string): Promise<ExecutionResult> =>
+      ipcRenderer.invoke('compiler:run', { languageId, code, input, timeoutSeconds, executionId, fileName }),
 
     stopExecution: (executionId?: string): Promise<boolean> =>
       ipcRenderer.invoke('compiler:stop', { executionId }),

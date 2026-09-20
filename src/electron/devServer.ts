@@ -85,7 +85,7 @@ export function startDevServer(): Promise<http.Server> {
       if (req.method === 'POST' && url.pathname === '/api/run') {
         try {
           const body = await parseJsonBody(req);
-          const { language, code, stdin = '', timeout = 10, executionId } = body;
+          const { language, code, stdin = '', timeout = 10, executionId, fileName } = body;
 
           // Validation
           if (!language || typeof language !== 'string') {
@@ -110,7 +110,8 @@ export function startDevServer(): Promise<http.Server> {
             code,
             typeof stdin === 'string' ? stdin : String(stdin),
             parsedTimeout,
-            typeof executionId === 'string' ? executionId : undefined
+            typeof executionId === 'string' ? executionId : undefined,
+            typeof fileName === 'string' ? fileName : undefined
           );
 
           sendJson(res, 200, result);

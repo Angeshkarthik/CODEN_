@@ -29,7 +29,8 @@ declare global {
         code: string,
         input: string,
         timeoutSeconds: number,
-        executionId?: string
+        executionId?: string,
+        fileName?: string
       ) => Promise<ExecutionResult>;
       stopExecution: (executionId?: string) => Promise<boolean>;
       checkCompilers: () => Promise<CompilerStatus[]>;
@@ -788,7 +789,8 @@ export const App: React.FC = () => {
 
   const handleSidebarDragMove = (e: React.PointerEvent) => {
     if (!isDraggingSidebar) return;
-    const newWidth = Math.max(160, Math.min(450, e.clientX));
+    const maxSidebar = Math.min(450, Math.max(160, Math.floor(window.innerWidth * 0.4)));
+    const newWidth = Math.max(140, Math.min(maxSidebar, e.clientX));
     setSidebarWidth(newWidth);
     localStorage.setItem('occ_sidebar_width', String(newWidth));
   };
@@ -799,6 +801,20 @@ export const App: React.FC = () => {
     } catch {}
     setIsDraggingSidebar(false);
   };
+
+  // Auto-collapse Explorer when viewport resizes below 900px to protect editor & console space
+  useEffect(() => {
+    let lastWidth = window.innerWidth;
+    const handleWindowResize = () => {
+      const currentWidth = window.innerWidth;
+      if (currentWidth < 900 && lastWidth >= 900) {
+        setIsSidebarVisible(false);
+      }
+      lastWidth = currentWidth;
+    };
+    window.addEventListener('resize', handleWindowResize);
+    return () => window.removeEventListener('resize', handleWindowResize);
+  }, []);
 
   // Apply theme & persist language
   useEffect(() => {
@@ -1347,7 +1363,8 @@ export const App: React.FC = () => {
         executingDoc.code,
         executingDoc.input,
         timeoutSeconds,
-        executionId
+        executionId,
+        executingDoc.fileName
       );
 
       // Section 19: Associate execution result with the document that started it

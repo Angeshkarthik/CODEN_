@@ -12,8 +12,8 @@ export const ResizableLayout: React.FC<ResizableLayoutProps> = ({
   left,
   right,
   defaultSplit = 72,
-  minLeftWidth = 250,
-  minRightWidth = 200
+  minLeftWidth = 180,
+  minRightWidth = 160
 }) => {
   const [split, setSplit] = useState<number>(() => {
     const saved = localStorage.getItem('occ_split');
@@ -35,7 +35,10 @@ export const ResizableLayout: React.FC<ResizableLayoutProps> = ({
     const totalWidth = rect.width;
     if (totalWidth <= 0) return;
 
-    if (currentX < minLeftWidth || totalWidth - currentX < minRightWidth) {
+    const effectiveMinLeft = Math.min(minLeftWidth, Math.max(120, Math.floor(totalWidth * 0.2)));
+    const effectiveMinRight = Math.min(minRightWidth, Math.max(120, Math.floor(totalWidth * 0.2)));
+
+    if (currentX < effectiveMinLeft || totalWidth - currentX < effectiveMinRight) {
       return;
     }
 

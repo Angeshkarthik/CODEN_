@@ -91,10 +91,10 @@ app.whenReady().then(() => {
   initFileManager();
 
   // Setup IPC Handlers
-  ipcMain.handle('compiler:run', async (_, { languageId, code, input, timeoutSeconds, executionId }) => {
-    console.log(`[IPC] compiler:run invoked for ${languageId}, timeout=${timeoutSeconds}s, executionId=${executionId}`);
+  ipcMain.handle('compiler:run', async (_, { languageId, code, input, timeoutSeconds, executionId, fileName }) => {
+    console.log(`[IPC] compiler:run invoked for ${languageId}, timeout=${timeoutSeconds}s, executionId=${executionId}, fileName=${fileName}`);
     try {
-      const res = await executeCode(languageId, code, input, timeoutSeconds || 10, executionId);
+      const res = await executeCode(languageId, code, input, timeoutSeconds || 10, executionId, fileName);
       console.log(`[IPC] compiler:run finished: exitCode=${res.exitCode}, stdoutLen=${res.stdout.length}`);
       return res;
     } catch (err: any) {
