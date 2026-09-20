@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Trash2, Copy, Check, CheckCircle2, AlertCircle, AlertTriangle, StopCircle, RefreshCw } from 'lucide-react';
 import { ExecutionResult } from '../../electron/types';
+import { PromptEntry, cleanPromptOutput } from '../../utils/inputDetection';
 
 interface OutputPanelProps {
   result: ExecutionResult | null;
   isRunning: boolean;
   onClear: () => void;
   onNavigateToLine?: (line: number, column?: number, fileName?: string) => void;
+  /** Detected prompt entries to suppress from stdout in prompt-aware mode */
+  promptEntries?: PromptEntry[];
 }
 
 const FormattedErrorOutput: React.FC<{
@@ -144,14 +147,24 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
   result,
   isRunning,
   onClear,
-  onNavigateToLine
+  onNavigateToLine,
+  promptEntries
 }) => {
   const [copied, setCopied] = useState<boolean>(false);
+
+  // In prompt-aware mode, strip detected prompt strings from displayed stdout
+  const displayStdout = useMemo(() => {
+    if (!result || !result.stdout) return '';
+    if (promptEntries && promptEntries.length > 0 && !result.compilationError && !result.isValidationMessage) {
+      return cleanPromptOutput(result.stdout, promptEntries);
+    }
+    return result.stdout;
+  }, [result?.stdout, promptEntries, result?.compilationError, result?.isValidationMessage]);
 
   const handleCopy = () => {
     if (!result) return;
     const parts = [
-      result.stdout,
+      displayStdout,
       result.compilationError ? `\n=== Compilation Error ===\n${result.compilationError}` : '',
       result.stderr && !result.compilationError ? `\n=== Runtime Error ===\n${result.stderr}` : ''
     ].filter(Boolean).join('\n');
@@ -217,7 +230,7 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
             ) : (
               <>
                 {/* Standard Output */}
-                {result.stdout && <div>{result.stdout}</div>}
+                {displayStdout && <div>{displayStdout}</div>}
 
                 {/* 1. USER-REQUESTED STOP STATE */}
                 {result.isStopped && (

@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, AlignLeft } from 'lucide-react';
 import { OutputPanel } from '../OutputPanel/OutputPanel';
+import { PromptInputPanel } from './PromptInputPanel';
 import { ExecutionResult } from '../../electron/types';
+import { requiresStdin, detectPrompts, PromptEntry } from '../../utils/inputDetection';
 
 interface ConsolePanelProps {
   input: string;
@@ -11,6 +13,17 @@ interface ConsolePanelProps {
   onClearOutput: () => void;
   onNavigateToLine?: (line: number, column?: number, fileName?: string) => void;
   onRun?: () => void;
+  /** Source code for the active document (used for prompt detection) */
+  code: string;
+  /** Language id for the active document (used for prompt detection) */
+  language: string;
+  /**
+   * Called whenever the rendered input mode changes.
+   * `true`  → prompt-aware fields are currently shown.
+   * `false` → raw textarea is currently shown.
+   * Used by App.tsx to gate the legacy empty-input validation guard.
+   */
+  onPromptModeChange?: (active: boolean) => void;
 }
 
 export const ConsolePanel: React.FC<ConsolePanelProps> = ({
@@ -20,7 +33,10 @@ export const ConsolePanel: React.FC<ConsolePanelProps> = ({
   isRunning,
   onClearOutput,
   onNavigateToLine,
-  onRun
+  onRun,
+  code,
+  language,
+  onPromptModeChange
 }) => {
   // Vertical split percentage between Input and Output
   // Default: Input ~35%, Output ~65%
@@ -31,6 +47,32 @@ export const ConsolePanel: React.FC<ConsolePanelProps> = ({
 
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Force raw textarea mode toggle (per-session, not persisted — user can always switch back)
+  const [forceRaw, setForceRaw] = useState<boolean>(false);
+
+  // Compute prompt mode: only when not forced raw, code requires stdin, and prompts detected
+  const needsInput = requiresStdin(code, language);
+  let promptEntries: PromptEntry[] = [];
+  let isPromptMode = false;
+
+  if (!forceRaw && needsInput) {
+    try {
+      const detected = detectPrompts(code, language);
+      if (detected.length > 0) {
+        promptEntries = detected;
+        isPromptMode = true;
+      }
+    } catch {
+      // Any detection error → raw fallback
+    }
+  }
+
+  // Notify parent whenever the rendered mode changes (prompt-aware vs raw).
+  // Parent uses this to decide whether the legacy empty-input guard should fire.
+  useEffect(() => {
+    onPromptModeChange?.(isPromptMode);
+  }, [isPromptMode, onPromptModeChange]);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -65,7 +107,8 @@ export const ConsolePanel: React.FC<ConsolePanelProps> = ({
     setIsDragging(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  // Raw textarea keyboard handler
+  const handleRawKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // Ctrl+Enter -> Run Active Tab
     if ((e.ctrlKey || e.metaKey) && (e.key === 'Enter' || e.code === 'Enter' || e.code === 'NumpadEnter') && !e.shiftKey && !e.altKey) {
       e.preventDefault();
@@ -106,8 +149,24 @@ export const ConsolePanel: React.FC<ConsolePanelProps> = ({
               <span className="console-badge-arrow">&gt;</span>
             </div>
             <span className="console-section-title">Input</span>
+            {isPromptMode && (
+              <span className="prompt-mode-badge" title="Prompt-aware mode: fields detected from your code">
+                prompt
+              </span>
+            )}
           </div>
           <div className="console-section-actions">
+            {/* Toggle between prompt-aware and raw textarea */}
+            {needsInput && (
+              <button
+                className="output-tool-btn"
+                onClick={() => setForceRaw(r => !r)}
+                title={isPromptMode ? 'Switch to raw stdin textarea' : 'Switch to prompt-aware fields'}
+              >
+                <AlignLeft size={13} />
+                <span>{isPromptMode ? 'Raw' : 'Fields'}</span>
+              </button>
+            )}
             {input.length > 0 && (
               <button
                 className="output-tool-btn"
@@ -121,14 +180,24 @@ export const ConsolePanel: React.FC<ConsolePanelProps> = ({
           </div>
         </div>
         <div className="console-input-body">
-          <textarea
-            className="console-input-textarea"
-            value={input}
-            onChange={(e) => onInputChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Enter input for your program..."
-            spellCheck={false}
-          />
+          {isPromptMode ? (
+            <PromptInputPanel
+              entries={promptEntries}
+              value={input}
+              onChange={onInputChange}
+              onRun={onRun}
+              isRunning={isRunning}
+            />
+          ) : (
+            <textarea
+              className="console-input-textarea"
+              value={input}
+              onChange={(e) => onInputChange(e.target.value)}
+              onKeyDown={handleRawKeyDown}
+              placeholder="Enter input for your program..."
+              spellCheck={false}
+            />
+          )}
         </div>
       </div>
 
@@ -158,6 +227,7 @@ export const ConsolePanel: React.FC<ConsolePanelProps> = ({
           isRunning={isRunning}
           onClear={onClearOutput}
           onNavigateToLine={onNavigateToLine}
+          promptEntries={isPromptMode ? promptEntries : undefined}
         />
       </div>
     </div>

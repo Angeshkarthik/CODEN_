@@ -303,6 +303,12 @@ export const App: React.FC = () => {
   const handleOpenWorkspaceRef = useRef<(() => Promise<void>) | null>(null);
   const handleRunRef = useRef<(() => Promise<void>) | null>(null);
 
+  // Tracks whether ConsolePanel is currently rendering prompt-aware mode (not raw textarea).
+  // Updated via the onPromptModeChange callback on ConsolePanel.
+  // Used in handleRun to skip the legacy empty-input Output-panel validation when the
+  // PromptInputPanel is responsible for field-level validation instead.
+  const consolePanelIsPromptModeRef = useRef<boolean>(false);
+
   // Open Folder chord state (BUG-06)
   const pendingChordRef = useRef<string | null>(null);
   const chordTimerRef = useRef<any>(null);
@@ -1334,8 +1340,22 @@ export const App: React.FC = () => {
     // Smart Empty Input Validation:
     // If the input box has no user-provided content (empty or whitespace only),
     // check if the program source code reasonably requires stdin.
+    //
+    // In prompt-aware mode, PromptInputPanel is responsible for field-level validation
+    // and prevents onRun from being called when any field is blank. If handleRun is
+    // reached via the toolbar Run button or global Ctrl+Enter shortcut while in
+    // prompt-aware mode with empty input, we silently abort rather than showing the
+    // legacy Output-panel message — the user must fill the prompt fields first.
+    //
+    // In raw textarea mode (consolePanelIsPromptModeRef.current === false), the legacy
+    // guard is preserved exactly as before.
     const isInputEmpty = !executingDoc.input || executingDoc.input.trim().length === 0;
     if (isInputEmpty && requiresStdin(executingDoc.code, executingDoc.language)) {
+      if (consolePanelIsPromptModeRef.current) {
+        // Prompt-aware mode: PromptInputPanel owns validation. Abort silently.
+        return;
+      }
+      // Raw textarea mode: show legacy validation message.
       const validationMsgResult: ExecutionResult = {
         stdout: 'Please enter the input.',
         stderr: '',
@@ -1774,6 +1794,9 @@ export const App: React.FC = () => {
               }
               onNavigateToLine={handleNavigateToError}
               onRun={handleRun}
+              code={activeDoc.code}
+              language={activeDoc.language}
+              onPromptModeChange={(active) => { consolePanelIsPromptModeRef.current = active; }}
             />
           }
         />
