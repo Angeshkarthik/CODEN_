@@ -127,8 +127,41 @@ CODEN enforces strict desktop security boundaries:
 
 ## 📸 Screenshots
 
-<!-- Screenshots will be added here for release documentation -->
-*(Screenshots can be viewed in the project repository artifacts or taken directly from the running desktop application.)*
+### CODEN Editor
+
+The main coding workspace with Monaco Editor, integrated input/output, and local execution.
+
+![CODEN Editor](screenshots/editor.png)
+
+### Java Execution
+
+Run Java programs locally with stdin support and real-time execution results.
+
+![Java Execution](screenshots/java.png)
+
+### C++ Execution
+
+Compile and execute C++ programs locally using the bundled toolchain.
+
+![C++ Execution](screenshots/cpp.png)
+
+### Python Execution
+
+Run Python programs completely offline using the bundled Python runtime.
+
+![Python Execution](screenshots/python.png)
+
+### Workspace & File Management
+
+Manage files and folders, switch between tabs, and work directly inside your local workspace.
+
+![Workspace and File Management](screenshots/files.png)
+
+### Settings
+
+Customize editor preferences, appearance, and coding behavior.
+
+![CODEN Settings](screenshots/settings.png)
 
 ---
 
